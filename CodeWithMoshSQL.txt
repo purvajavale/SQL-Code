@@ -1,0 +1,439 @@
+Database:
+Collection of data stored in the format that can easily be accessed.
+
+Database Management System:
+1)Relational Database - SQL Language
+Tables are linked to each other using relationships
+e.g MYSQL, ORACLE, SQL Server
+
+2)Non Relational Database - Own query language
+No tables and relationships
+
+SQL - Structured Query Language
+1970 - IBM
+
+SELECT COLUMNS
+FROM TABLE
+WHERE CONDITION
+ORDER BY COLUMNS
+LIMIT RECORDS
+
+SELECT:
+USE sql_store;
+
+SELECT *(all columns)/col_1,col_2..
+--FROM customers
+--WHERE customer_id = 1
+--ORDER BY first_name
+
+SELECT *
+FROM sql_store.customers
+
+ALIAS:
+SELECT last_name, first_name, points * 10 AS total_points
+FROM sql_store.customers
+
+DISTINCT:
+SELECT DISTINCT last_name, first_name, points * 10 AS total_points
+FROM sql_store.customers
+
+WHERE:
+SELECT last_name, first_name
+FROM customers
+WHERE customer_id = 1
+
+WHERE CONDITIONS:
+Evaluation order:
+1)AND
+2)OR
+
+1)()Brackets
+2)* /
+3)+ -
+
+BETWEEN(val1 AND val2)
+NOT(condition)
+IN('val1','val2')
+LIKE-%(any character)
+LIKE-_(single character)
+IS NULL/IS NOT NULL
+
+REGEX:
+^(begining of the string)
+$(ending of the string)
+|(logical OR)
+[](multiple characters)
+[-](multiple characters with range)
+
+=(equals),!=/<>(not equals),<(less than),>(greater than)
+
+ORDER BY:
+Ordering columns
+ASEC
+DESC
+
+SELECT * 
+FROM customer
+WHERE customer_id = 2
+ORDER BY last_name DESC
+
+LIMIT:
+LIMIT 4
+LIMIT 2,4(offset, number of records)
+
+SELECT * 
+FROM customer
+WHERE customer_id = 2
+ORDER BY last_name DESC
+LIMIT 3
+
+JOINS:
+TWO TYPES -
+OUTER JOIN
+INNER JOIN:(JOIN)
+
+SELECT order_id, o.customer_id, first_name, last_name 
+FROM orders o
+JOIN customers c 
+ON o.order_id = c.customer_id; 
+
+JOINING ACROSS DATABASE:
+USE sql_store;
+SELECT order_id, p.product_id
+FROM orders o
+JOIN sql_inventory.products p 
+ON o.order_id = p.product_id; 
+
+SELF JOIN:
+USE sql_hr;
+SELECT e.employee_id, e.first_name, e1.first_name AS manager
+FROM employees e
+JOIN employees e1 
+ON e.reports_to = e1.employee_id;
+
+JOINING MULTIPLE TABLES:
+USE sql_hr;
+SELECT *
+FROM employees e
+JOIN products p 
+ON e.employee_id = p.employee_id
+JOIN orders o 
+ON p.employee_id = o.employee_id;
+
+COMPOSITE JOIN:
+If 2 table has primary key - (PK)order_id and product_id
+SELECT *
+FROM orders o
+JOIN orders_items oi 
+ON o.order_id = oi.order_id
+AND o.product_id = oi.product_id
+
+OUTER JOIN:
+TWO TYPES-
+LEFT JOIN(all the records from left table are returned, whether the condition is satisfied or not)
+RIGHT JOIN(all the records from right table are returned, whether the condition is satisfied or not)
+
+LEFT OUTER JOIN(OUTER is optional keyword like INNER)
+RIGHT OUTER JOIN(OUTER is optional keyword like INNER)
+
+SELECT *
+FROM customers c
+LEFT JOIN orders o --all the records from left table are returned
+ON c.customer_id = o.customer_id --whether the condition is satisfied or not
+ORDER BY c.customer_id
+
+USING:
+If we have tables with same column name then we can use USING clause.
+o.customer_id = c.customer_id
+-- USING(customer_id)
+
+CROSS JOIN:
+Joins everything from one table with other table.
+SELECT *
+FROM orders o
+CROSS JOIN orders_items oi -- OR JOIN orders o,orders_items oi
+ON o.order_id = oi.order_id
+
+DATATYE:
+IMP:
+VARCHAR(50)- If this is a name column, and we have a name of 5 charcters then mysql will use only 5 charcters out of 50. so space for rest 45 charcters are saved.Better to use this than CHAR.
+CHAR(50)- If this is a name column, and we have a name of 5 charcters then mysql will use 5 charcters and rest 45 charcters are filled with spaces. 
+
+INSERT:
+If a column attribute is auto increment then use DEFAULT KEYWORD for inserting values for the column otherwise add those values which are not auto increment.
+
+Columns - 
+Id,Customer_id, Payment_mode
+INSERT INTO `payment_methods` VALUES (DEFAULT,501,'Credit Card');
+OR
+INSERT INTO `payment_methods` VALUES (501,'Credit Card');
+
+HIERARCHICAL DATA IN MYSQL (Between tables)
+LAST_INSERT_ID() - Used to get last inserted id from the table.
+INSERT INTO `payment_methods` VALUES (LAST_INSERT_ID(),501,'Credit Card');
+INSERT INTO `payment_methods` VALUES (LAST_INSERT_ID(),502,'Dedit Card');
+
+UPDATE:
+UPDATE table
+SET values
+WHERE condition
+
+DELETE:(delete row/s)
+DELETE 
+FROM table
+WHERE condition
+
+COPYING TABLE:
+CREATE TABLE THEN INSERT RECORDS.
+
+(1)CREATE TABLE orders_archived AS
+SELECT * FROM orders
+-- This creates the table structure/columns
+
+(2)INSERT INTO orders_archived (SELECT * FROM orders WHERE order_date < '2019-01-01')
+-- This adds the data
+
+IFNULL - substitutes null value with something else 
+IFNULL(shipper_id, 'Not assigned')
+COALESEC - substitutes null value with list of values 
+COALESEC (shipper_id, comments, 'Not assigned')
+-- if (shipper_id column value is null then it will take value from comments column and if comments column value is null then it will take'Not assigned' value.
+
+IF function - 
+SELECT order_id,
+IF(YEAR(order_date) == YEAR(NOW()),'Active','Archived') AS Category
+FROM orders
+
+
+CASE function - 
+SELECT order_id,
+CASE
+	WHEN YEAR(order_date) == YEAR(NOW())THEN 'Active' 
+	WHEN YEAR(order_date) == YEAR(NOW())-1 THEN 'NOT Active' 
+ELSE 'FUTURE'
+END AS Category
+FROM orders
+
+AGGREGATE FUNCTIONS:
+FUNCTION(column/mathematical expression)
+MAX()
+MIN()
+AGG()
+COUNT()
+DIFF()
+
+SUMMAIRIZING DATA:
+SELECT 
+FROM
+JOIN
+WHERE(condition)--  condition before grouping data
+GROUP BY
+--ORDER BY 
+HAVING(condition)-- condition on grouped data
+
+VIEWS:
+CREATE VIEW sales_test AS 
+	SELECT
+	FROM
+	JOIN
+	WHERE
+	GROUP BY
+	ORDER BY
+
+VIEWS can be seen in column side below tables.
+It contains the table data from query so that we can reuse the data for the next query. simplifys the future query.
+Its a virtual table. Data is not stored in views its in actual table.Its just a view to underlying table. Restrict access to the data.
+
+SELECT *
+FROM sales_test 
+...
+
+WITH CHECK OPTION:VIEWS
+This helps not to update or delete rows from the view.
+CREATE VIEW sales_test AS 
+	SELECT
+	FROM
+	JOIN
+	WHERE
+	GROUP BY
+	ORDER BY
+WITH CHECK OPTION
+
+TRIGGERS:
+A block of sql code that automatically gets executed before or after an insert, update or delete statement.
+Use triggers for auditing(e.g what time insert/delete happened to table/row..)
+
+DELIMITER $$
+CREATE TRIGGER payments_after_insert
+	AFTER INSERT ON payments
+	FOR EACH ROW
+BEGIN(block where you can have sql statement)
+	UPDATE invoices
+	SET payment_total = payment_total + NEW.amount
+	WHERE invoice_id = NEW.invoice_id;
+END $$
+DELIMITER ;
+
+EVENTS:
+A task (block of sql code) that gets executed according to a schedule.We can automate tasks.
+e.g deleting stale data or copying data from one table into an another archieve table etc.
+
+DELIMITER $$
+CREATE EVENT yearly_delete_auditrows
+	ON SCHEDULE
+	EVERY 1 YEAR '2019-01-01' ENDS '2029-01-01'
+DO BEGIN(block where you can have sql statement)
+	DELETE FROM payments_audit
+	WHERE action_date < NOW() - INTERVAL 1 YEAR;
+END $$
+DELIMITER ;
+
+TRANCATIONS:
+A group of SQL statements that represents a single unit of work.
+e.g Bank Transcation - debit and credit operation
+Both operations should be successfully completed, 
+if first operation is success and second fails then we need to revert/rollback the full oprations.
+
+START TRANCATION;
+INSERT INTO `payment_methods` VALUES (501,'Credit Card');
+INSERT INTO `payment_methods` VALUES (501,'Credit Card');
+COMMIT;
+
+
+ACID Properties-
+ATOMICITY -
+Each transcation is single unit of work.
+All the operations should be successfully completed, 
+if one of the operation is success and other fails then we need to revert/rollback the full oprations.
+
+CONSISTENCY -
+With this transcations, database should be consistent state.
+We dont end up with order without an item.
+
+ISOLATION - 
+Transcation should be isolated or protected from each other.
+Multiple transcations getting updated will be locked. one transcation at a time will be affected.
+
+DURABILITY - 
+Once transcation is committed changes made by transcations are permanent.
+So if there is system crash/power failure, we are not going to lose system changes.
+
+CONCURRENCY - 
+Two or more users trying to access the data at a same time this is called concurrency.
+This becomes problem when one user modifies the data and other user tries to retrieveor modify that data.
+MYSQL handles concurrency by default by Locking Mechanism.
+
+Locking Mechanism-
+Local instance - first session - 1st user
+T1
+T2
+Local instance - second session - 2nd user
+ST1
+ST2
+ST3
+
+T1--ST1--T2:ST2
+ST2 WAITS till T2 is being executed.
+
+DEADLOCK - 
+When 1 or more transcations are waiting for each other to finish, it goes in deadlock state.
+
+2 types of character data-
+Regular and Unicode
+Regular - Char and VarChar
+Unicode - NChar and NVarChar
+
+literal strings expressed with Regular character column - text
+literal strings expressed with Unicode character column - N text
+
+variable length character data types -VARCHAR(MAX)- 8000 bytes  in line
+
+GROUP BY AND UNIONS-
+Both joins the tables
+Group by (horizontal)- combines the tables on same key
+Union (vertical)- combines the tables (same count of tablename and datatype for correct output)
+
+INDEXES - 
+Datastructures to find out the data.
+A database index is a data structure that provides a quick lookup of data in a column or columns of a table.
+Internally stored as binary tree.
+e.g
+Telephone directory
+Finds the phone number, contacts are sorted according to first and last names.
+
+Without Indexes - Query scans each row
+With Indexes - Data is ordered, quick scan, store in memory
+
+Customer       Index
+state          state
+NY              CA
+CA              NY
+VA              VA
+
+Cost of Indexes - 
+Increased database - need to write indexes in memory.
+Slow down the writes - need to keep memory table and disk table in sink.
+
+Reserve indexes for performance critical queries.
+Design indexes based on queries and not on all columns.
+
+e.g
+CREATE INDEX idx_state ON Customer(state);
+SHOW INDEXES IN Customer;
+
+Types-
+(1)Unique indexes: are indexes that help maintain data integrity by ensuring that no two rows of data in a table have identical key values
+(2)Non-unique indexes: on the other hand, are not used to enforce constraints on the tables with which they are associated
+(3)Clustered indexes: are indexes whose order of the rows in the database corresponds to the order of the rows in the index
+
+STORED PROCEDURES -
+Database object that contains block of SQL code.
+Used for -
+store and organise data
+faster
+data security
+
+e.g
+CREATE-
+DELIMITER $$
+USE sql_invoicetable $$
+CREATE PROCEDURE get_payments ()
+BEGIN
+	SELECT * FROM payments; //sql stmts if then else; case; etc
+END$$
+DELIMITER ;
+
+DROP-
+DROP PROCEDURE IF EXISTS get_payments;
+
+WITH PARAMETERS-
+DELIMITER $$
+CREATE PROCEDURE get_payments (
+	pay_id INT,
+	pay_method TINYINT
+)
+BEGIN
+	SELECT * FROM payments; //sql stmts
+END$$
+DELIMITER ;
+
+CALL PROCEDURE-
+CALL get_payments();
+CALL get_payments(2,3);
+
+Forward and Reverse Engineering - 
+Forward - 
+Schema design/daigram to tables
+Reverse -
+Tables to schema design/daigram 
+
+Collation -
+Collation refers to a set of rules that determine how data is sorted and compared. Rules defining the correct character sequence are used to sort the character data. It incorporates options for specifying case sensitivity, accent marks, kana character types, and character width. Below are the different types of collation sensitivity:
+
+Case sensitivity: A and a are treated differently.
+Accent sensitivity: a and á are treated differently.
+
+Temp table-
+Temorary table
+CREATE TABLE #TMP_TBL ..
+Only difference with normal table is '#'
